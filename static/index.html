@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+      body {
+        font-family: Monaco, 'Lucida Console', monospace;
+        font-size: 16px;
+        line-height: 20px;
+      }
+    </style>
+</head>
+<body>
+    
+  <script src="js/jquery.js"></script>
+  <script src="js/bullet.js"></script>
+  <script src="js/term.js"></script>
+  <script>
+
+    $(document).ready(function() {
+      var term = new Terminal({
+        screenKeys: false,
+        cols: 80,
+        rows: 24
+      });
+
+      term.open(document.body);
+
+      var bullet = $.bullet('ws://10.95.194.207:8080/bullet', {});
+
+      bullet.onmessage = function(e) {
+        term.write(decodeURIComponent(escape(atob(e.data))));
+      };
+    });
+
+    window.addEventListener('load', function() {
+      window.term = new Terminal({
+        screenKeys: false,
+        cols: 80,
+        rows: 24 
+      });
+
+      term.open(document.body);
+    });
+  </script>
+</body>
+</html>
