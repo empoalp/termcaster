@@ -9,10 +9,19 @@
         font-size: 16px;
         line-height: 20px;
       }
+
+      #terminal {
+        margin: auto;
+        width: 800px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 50px;
+      }
     </style>
 </head>
 <body>
     
+  <div id="terminal"></div>
   <script src="js/jquery.js"></script>
   <script src="js/bullet.js"></script>
   <script src="js/term.js"></script>
@@ -25,24 +34,18 @@
         rows: 24
       });
 
-      term.open(document.body);
+      term.open(document.getElementById('terminal'));
 
-      var bullet = $.bullet('ws://10.95.194.207:8080/bullet', {});
+      var host = location.host,
+          session = location.hash.substr(1),
+          url = 'ws://' + host + '/watcher/' + session,
+          bullet = $.bullet(url, {});
 
       bullet.onmessage = function(e) {
         term.write(decodeURIComponent(escape(atob(e.data))));
       };
     });
 
-    window.addEventListener('load', function() {
-      window.term = new Terminal({
-        screenKeys: false,
-        cols: 80,
-        rows: 24 
-      });
-
-      term.open(document.body);
-    });
   </script>
 </body>
 </html>

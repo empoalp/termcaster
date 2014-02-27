@@ -6,16 +6,23 @@ defmodule Termcaster.Server do
   end
 
   def init([]) do
-    { :ok, [] }
+    { :ok, HashDict.new }
   end
 
-  def handle_cast({ :addclient, pid }, clients) do
-    { :noreply, [pid|clients] }
+  def handle_call(:newsession, _from, sessions) do
+    <<num::size(64)>> = :crypto.strong_rand_bytes(8)
+    session_id = integer_to_binary(num)
+    { :reply, session_id, HashDict.put(sessions, session_id, []) }
   end
 
-  def handle_cast({ :ttyin, data }, clients) do
-    send_to_clients(data, clients)
-    { :noreply, clients }
+  def handle_cast({ :addclient, session, pid }, sessions) do
+    clients = sessions[session]
+    { :noreply, HashDict.put(sessions, session, [pid|clients]) }
+  end
+
+  def handle_cast({ :ttyin, session, data }, sessions) do
+    send_to_clients(data, sessions[session])
+    { :noreply, sessions }
   end
 
   def send_to_clients(data, []), do: :ok
@@ -23,5 +30,6 @@ defmodule Termcaster.Server do
     send client, {:ttydata, data}
     send_to_clients(data, rest)
   end
+  def send_to_clients(data, _), do: :error
 
 end

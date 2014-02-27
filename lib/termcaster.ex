@@ -3,14 +3,15 @@ defmodule Termcaster do
 
   def start(_type, _args) do    
 
-    {:ok, _} = :ranch.start_listener(:ttylistener, 1, :ranch_tcp,
-                                      [port: 5555], Termcaster.TTYProtocol, [])
-
     routes = [
       {"/", :cowboy_static, {:file, "static/index.html"}},
+      {"/newsession", Termcaster.NewHandler, []},
       {"/js/bullet.js", :cowboy_static, {:priv_file, :bullet, "bullet.js"}},
       {"/js/[...]", :cowboy_static, {:dir, "static/js"}},
-      {"/bullet", :bullet_handler, [handler: Termcaster.StreamHandler ]}
+      {"/streamer/:session", :bullet_handler,
+          [handler: Termcaster.StreamerHandler]},
+      {"/watcher/:session", :bullet_handler,
+          [handler: Termcaster.WatcherHandler ]}
     ]
 
     dispatch = :cowboy_router.compile([{ :_, routes }])

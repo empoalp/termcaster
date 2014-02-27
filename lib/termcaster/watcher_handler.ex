@@ -1,7 +1,8 @@
-defmodule Termcaster.StreamHandler do
+defmodule Termcaster.WatcherHandler do
 
   def init(_transport, req, opts, _active) do
-    :gen_server.cast(:termcaster, {:addclient, self}) 
+    { session, req } = :cowboy_req.binding(:session, req)
+    :gen_server.cast(:termcaster, {:addclient, session, self}) 
     {:ok, req, []}
   end
 
