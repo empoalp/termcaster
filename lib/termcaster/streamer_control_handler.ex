@@ -1,4 +1,4 @@
-defmodule Termcaster.StreamerHandler do
+defmodule Termcaster.StreamerControlHandler do
 
   def init(_transport, req, _opts, _active) do
     { session_id, req } = :cowboy_req.binding(:session, req)
@@ -7,7 +7,7 @@ defmodule Termcaster.StreamerHandler do
   end
 
   def stream(data, req, session_pid) do
-    :gen_server.cast(session_pid, {:ttyin, :base64.encode(data) });
+    :gen_server.cast(session_pid, {:controlin, data });
     {:ok, req, session_pid}
   end
 

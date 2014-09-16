@@ -1,35 +1,45 @@
 defmodule Termcaster.Server do
   use GenServer.Behaviour
 
+  @moduledoc """
+    This is the termcaster main server
+    It is responsable for creating and storing new sessions
+  """
+
   def start_link() do
+    # start main server as a named process :termcaster
     :gen_server.start_link({ :local, :termcaster }, __MODULE__, [], [])
   end
 
   def init([]) do
-    { :ok, HashDict.new }
+    # create a hash to store the session processes by session_id
+    sessions = HashDict.new
+    { :ok, sessions }
   end
 
+  @doc """
+    Creates a new termcaster session
+  """
   def handle_call(:newsession, _from, sessions) do
+
+    # generates a random id for the session
     <<num::size(64)>> = :crypto.strong_rand_bytes(8)
     session_id = integer_to_binary(num)
-    { :reply, session_id, HashDict.put(sessions, session_id, []) }
+
+    # start a new process to handle the session
+    { :ok, session_pid } = Termcaster.Session.start_link
+
+    # store the new session in the session hash dict
+    sessions = HashDict.put(sessions, session_id, session_pid)
+
+    { :reply, session_id, sessions }
   end
 
-  def handle_cast({ :addclient, session, pid }, sessions) do
-    clients = sessions[session]
-    { :noreply, HashDict.put(sessions, session, [pid|clients]) }
+  @doc """
+    Returns the session process id for given session id
+  """
+  def handle_call({ :getsessionpid, session_id }, _from, sessions) do
+    { :reply, sessions[session_id], sessions }
   end
-
-  def handle_cast({ :ttyin, session, data }, sessions) do
-    send_to_clients(data, sessions[session])
-    { :noreply, sessions }
-  end
-
-  def send_to_clients(data, []), do: :ok
-  def send_to_clients(data, [client|rest]) do
-    send client, {:ttydata, data}
-    send_to_clients(data, rest)
-  end
-  def send_to_clients(data, _), do: :error
 
 end

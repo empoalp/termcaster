@@ -10,8 +10,12 @@ defmodule Termcaster do
       {"/js/[...]", :cowboy_static, {:dir, "static/js"}},
       {"/streamer/:session", :bullet_handler,
           [handler: Termcaster.StreamerHandler]},
+      {"/streamer_control/:session", :bullet_handler,
+          [handler: Termcaster.StreamerControlHandler]},
       {"/watcher/:session", :bullet_handler,
-          [handler: Termcaster.WatcherHandler ]}
+          [handler: Termcaster.WatcherHandler ]},
+      {"/watcher_control/:session", :bullet_handler,
+          [handler: Termcaster.WatcherControlHandler ]}
     ]
 
     dispatch = :cowboy_router.compile([{ :_, routes }])

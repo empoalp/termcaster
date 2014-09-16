@@ -39,10 +39,21 @@
       var host = location.host,
           session = location.hash.substr(1),
           url = 'ws://' + host + '/watcher/' + session,
-          bullet = $.bullet(url, {});
+          urlControl = 'ws://' + host + '/watcher_control/' + session,
+          bullet = $.bullet(url, {}),
+          bulletControl = $.bullet(urlControl, {});
 
       bullet.onmessage = function(e) {
         term.write(decodeURIComponent(escape(atob(e.data))));
+      };
+
+      bulletControl.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+
+        if (data.event === 'resize') {
+            term.resize(data.data.columns, data.data.rows);
+            $('#terminal').css('width', data.data.columns*10);
+        }
       };
     });
 
