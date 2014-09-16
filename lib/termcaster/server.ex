@@ -1,5 +1,5 @@
 defmodule Termcaster.Server do
-  use GenServer.Behaviour
+  use GenServer
 
   @moduledoc """
     This is the termcaster main server
@@ -24,7 +24,7 @@ defmodule Termcaster.Server do
 
     # generates a random id for the session
     <<num::size(64)>> = :crypto.strong_rand_bytes(8)
-    session_id = integer_to_binary(num)
+    session_id = Integer.to_string(num)
 
     # start a new process to handle the session
     { :ok, session_pid } = Termcaster.Session.start_link

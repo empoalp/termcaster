@@ -4,7 +4,7 @@ defmodule Termcaster.Mixfile do
   def project do
     [ app: :termcaster,
       version: "0.0.1",
-      elixir: "~> 0.12.0",
+      elixir: "~> 0.15.1",
       deps: deps ]
   end
 
